@@ -19,7 +19,9 @@ end
 local menu = CircleMenu.new({from=-45, to=135}, 120)
 menu:loadTextures(imagize('menuNormal'), imagize('menuPressed'), '')
 menu:setInitialContainNodes(nodes)
-menu:doLayout()
+-- Remeber to call this method by youself, 
+-- or the menu will not do layout operation.
+menu:doLayout() 
 menu:setPosition(320, 740)
 
 ---- try to add menu to some target ----
