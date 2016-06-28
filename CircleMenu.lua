@@ -7,11 +7,14 @@
 
 local CircleMenu = class('CircleMenu', ccui.Button)
 local isShowContainNodes = false
+local ContainNodes = nil
 
 -- radian:弧度， radius:半径
 function CircleMenu:ctor (radian, radius, nodes)
     isShowContainNodes = false
-    self._containNodes = {}
+    -- In fact, it is much better to take 'self._containNodes' 
+    -- as a local variable.
+    ContainNodes = {} 
     self:initInitialButton()
     self:setInitialRadius(radius)
     self:setInitialRadian(radian)
@@ -19,7 +22,8 @@ function CircleMenu:ctor (radian, radius, nodes)
 end
 
 function CircleMenu:setInitialRadius(radius)
-    radius = radius or 128
+    -- 128 is a custom number as default, you can set any number.
+    radius = radius or 128 
     self._radius = radius
 end
 
@@ -37,6 +41,8 @@ function CircleMenu:setInitialRadian(radian)
     if not from or not to then
         randian = {from=0, to=180}
     end
+    -- 'from < to' is required, so if 'from > to', then we 
+    -- need to swap them.
     if from > to then
          radian.from, radian.to = to, from
     end
@@ -44,16 +50,17 @@ function CircleMenu:setInitialRadian(radian)
 end
 
 function CircleMenu:addSubItem(node)
-    self._containNodes[#self._containNodes+1] = node
+    ContainNodes[#ContainNodes+1] = node
     node:setAnchorPoint(cc.p(0.5, 0.5))
     self:addChild(node)
 end
 
+-- This function should be called by youself after adding items done.
 function CircleMenu:doLayout()
     local radius     = self._radius
     local from, to   = self._radian.from, self._radian.to
     local radianSpan = math.min(to - from, 360)
-    local nodeCount  = #self._containNodes
+    local nodeCount  = #ContainNodes
     local divident   = (radianSpan == 360 or nodeCount == 1) and nodeCount or (nodeCount - 1)
     local nodePiece  = radianSpan / divident
     local menuSize   = self:getContentSize() 
@@ -71,7 +78,7 @@ function CircleMenu:doLayout()
 
     local function doLayoutOnRound()
         for i=1, nodeCount do
-            local node  = self._containNodes[i]
+            local node  = ContainNodes[i]
             local nodeP = calNodePositionOnRound(i)
             node:setPosition(nodeP)
         end
@@ -105,7 +112,7 @@ function CircleMenu:animateShow()
     print('====> show')
     -- 注释 : 可以在这里自定义菜单弹出动画
     -- comment : Add custom animation to pop up the menu here
-    for i,v in ipairs(self._containNodes) do
+    for i,v in ipairs(ContainNodes) do
         v:setVisible(true)
     end
 end
@@ -114,7 +121,7 @@ function CircleMenu:animateHide()
     print('====> hide')
     -- 注释 : 可以在这里自定义菜单收起动画
     -- comment: Add custom animation to pack up the menu here
-    for i,v in ipairs(self._containNodes) do
+    for i,v in ipairs(ContainNodes) do
         v:setVisible(false)
     end
 end
